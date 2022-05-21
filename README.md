@@ -10,7 +10,8 @@
 ## Running
 * `python3 bot.py` or `python bot.py`
 * It will sometimes pass the Captcha check, sometimes not, so you may need to monitor it on the side to manually
-  complete the captcha, but that is the only manual interaction required.
+  complete the captcha, but that is the only manual interaction required. The program will automatically time out if
+  halted anywhere for more than 5 minutes, including waiting for things to load and waiting at the Captcha check.
 * All generated codes will also be stored in `codes.txt` which will be created in this directory.
 
 Different browser support coming...soon? Maybe?
