@@ -1,5 +1,7 @@
 {
   "first_name": "Name",
   "email": "example@example.com",
-  "num_completed": 0
+  "num_completed": 0,
+  "microsoft_id": "example@example.com",
+  "microsoft_pw": "fake password"
 }
