@@ -18,12 +18,15 @@ driver = webdriver.Chrome()
 driver.get('https://halo.lucozade.com/')
 action = ActionChains(driver)
 
-def get_element_after_loading(type, value):
+def get_elements_after_loading(type, value, get_all=False):
     elem = None
     attempts = 0
     while not elem:
         try:
-            elem = driver.find_element(by=type, value=value)
+            if get_all:
+                elem = driver.find_elements(by=type, value=value)
+            else:
+                elem = driver.find_element(by=type, value=value)
         except selenium.common.exceptions.NoSuchElementException:
             if attempts > (ELEMENT_EXIST_CHECK_TIMEOUT / ELEMENT_EXIST_CHECK_DELAY):    # timeout / delay = number of attempts
                 print(f"Timed out trying to get element type={type}, value={value}")
@@ -61,12 +64,12 @@ def fill_field(parent, field_name, value):
     action.move_to_element(elem).click().send_keys(value).perform()
 
 # Click "non-essential cookies" in cookie popup
-cookie_field = get_element_after_loading(By.CLASS_NAME, "cookie-interface-masker")
+cookie_field = get_elements_after_loading(By.CLASS_NAME, "cookie-interface-masker")
 cookie_buttons = cookie_field.find_elements(by=By.CLASS_NAME, value="block-link")
 cookie_buttons[2].click()
 
 
-form_div = get_element_after_loading(By.CLASS_NAME, "infx-form-shell")
+form_div = get_elements_after_loading(By.CLASS_NAME, "infx-form-shell")
 
 # Enter first name and email fields
 fill_field(form_div, "firstName", user_info['first_name'])
@@ -97,5 +100,27 @@ action.move_to_element(captcha).click().perform()
 sleep(1)
 
 # Click "Next" button
+attempts = 0
+while attempts < (ELEMENT_EXIST_CHECK_TIMEOUT / ELEMENT_EXIST_CHECK_DELAY):
+    try:
+        btns = driver.find_elements(by=By.CLASS_NAME, value="button-text")
+        btns[1].click()
+        break
+    except selenium.common.exceptions.ElementClickInterceptedException:
+        sleep(ELEMENT_EXIST_CHECK_DELAY)
+    attempts += 1
+else:
+    print("Captcha intercepted program and was not manually overridden before timeout, exiting program")
+    exit(1)
+
+
+# Page 2
+
+page_2_check = get_elements_after_loading(By.CLASS_NAME, "lz-campaign-xbox-question-one")
+page_2_dropdowns = get_elements_after_loading(By.CLASS_NAME, "styled-select", get_all=True)
+select_option_after_loading(page_2_dropdowns[0], "22")
+select_option_after_loading(page_2_dropdowns[1], "19:00")
+
+# Click "Play" button
 btns = driver.find_elements(by=By.CLASS_NAME, value="button-text")
 btns[1].click()
