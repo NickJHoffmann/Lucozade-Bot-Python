@@ -16,7 +16,7 @@ with open('config.json', 'r') as config_file:
 
 driver = webdriver.Chrome()
 driver.get('https://halo.lucozade.com/')
-
+action = ActionChains(driver)
 
 def get_element_after_loading(type, value):
     elem = None
@@ -58,8 +58,7 @@ def select_option_after_loading(parent, option_value):
 
 def fill_field(parent, field_name, value):
     elem = parent.find_element(by=By.NAME, value=field_name)
-    elem.click()
-    elem.send_keys(value)
+    action.move_to_element(elem).click().send_keys(value).perform()
 
 # Click "non-essential cookies" in cookie popup
 cookie_field = get_element_after_loading(By.CLASS_NAME, "cookie-interface-masker")
@@ -94,7 +93,7 @@ form_div.find_element(by=By.NAME, value="terms").click()
 # Try to get past captcha
 sleep((random.random() * 3) + 1.5)
 captcha = form_div.find_element(by=By.TAG_NAME, value="iframe")
-captcha.click()
+action.move_to_element(captcha).click().perform()
 sleep(1)
 
 # Click "Next" button
