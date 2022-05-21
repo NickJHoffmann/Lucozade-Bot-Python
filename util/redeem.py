@@ -1,17 +1,29 @@
 from botdriver import BotDriver
-import sys
+import argparse
 
 
 def main():
+    parser = argparse.ArgumentParser(description="Redeem codes on Halo Waypoint")
+    parser.add_argument("file", help="Codes file to input")
+    parser.add_argument("-s", "--start", help="Code number to start inputting", type=int, default=0)
+    parser.add_argument("-n", "--number", help="Number of codes to input from starting point", type=int)
+
+    args = parser.parse_args()
+
     bot = BotDriver()
     bot.driver.get(bot.WAYPOINT_URL)
-
     bot.login_microsoft()
 
-    with open(sys.argv[1], 'r') as code_file:
+    with open(args.file, 'r') as code_file:
+        num = 0
+        submitted = 0
         code = code_file.readline().strip()
-        while code:
-            bot.redeem_waypoint_code(code, True)
+        while code and (submitted < args.number if args.number is not None else True):
+            if num >= args.start:
+                succeeded = bot.redeem_waypoint_code(code, True)
+                print(f"{code}{'' if succeeded else ' - Failed'}")
+                submitted += 1
+            num += 1
             code = code_file.readline().strip()
 
 

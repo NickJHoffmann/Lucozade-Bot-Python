@@ -74,7 +74,7 @@ class BotDriver:
         elem = parent.find_element(by=By.NAME, value=field_name)
         self.action.move_to_element(elem).click().send_keys(value).perform()
 
-    def redeem_waypoint_code(self, code, stay_on_waypoint=False):
+    def redeem_waypoint_code(self, code, stay_on_waypoint=False) -> bool:
         """Redeem a code on Waypoint"""
         input_field = self.get_elements_after_loading(By.CLASS_NAME, "text-input_input__11DMP")
         input_field.send_keys(code)
@@ -92,14 +92,17 @@ class BotDriver:
             except selenium.common.exceptions.NoSuchElementException:
                 pass
 
+        success = not redeem_headers[-1].text == "WHOOPS!"
+
         if stay_on_waypoint:
             # Reload page if code has already been used, or click "new code" button on success
-            if redeem_headers[-1].text == "WHOOPS!":
+            if not success:
                 sleep(0.5)
                 self.driver.get(self.WAYPOINT_URL)
             else:
                 self.driver.find_element(by=By.CLASS_NAME, value="redeem-code_actions__hWk8H").find_element(
                     by=By.TAG_NAME, value="button").click()
+        return success
 
     def login_microsoft(self):
         """Login through Microsoft login portal if necessary"""
