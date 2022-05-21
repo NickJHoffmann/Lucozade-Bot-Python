@@ -13,12 +13,12 @@ ELEMENT_EXIST_CHECK_TIMEOUT = 300   # Number of seconds to wait before timing ou
 MAX_SUBMISSIONS = 120               # Submission cap for website
 CONFIG_FILE = 'config.json'
 URL = 'https://halo.lucozade.com/'
+REDEEM_URL = 'https://www.halowaypoint.com/redeem?code='
 
 with open(CONFIG_FILE, 'r') as file:
     user_info = json.load(file)
 
 driver = webdriver.Chrome()
-driver.get(URL)
 action = ActionChains(driver)
 
 def get_elements_after_loading(type, value, get_all=False, parent=driver):
@@ -67,8 +67,9 @@ def fill_field(parent, field_name, value):
     action.move_to_element(elem).click().send_keys(value).perform()
 
 
-
 while user_info["num_completed"] < MAX_SUBMISSIONS:
+    driver.get(URL)
+
     # Click "non-essential cookies" in cookie popup
     cookie_field = get_elements_after_loading(By.CLASS_NAME, "cookie-interface-masker")
     cookie_buttons = cookie_field.find_elements(by=By.CLASS_NAME, value="block-link")
@@ -164,4 +165,39 @@ while user_info["num_completed"] < MAX_SUBMISSIONS:
 
     driver.delete_all_cookies()
     sleep(2)
-    driver.refresh()
+
+
+    # Navigate to Waypoint to redeem code
+    driver.get(f"{REDEEM_URL}{codes[-1]}")
+
+    # Sign into Waypoint if prompted
+    try:
+        driver.find_element(by=By.ID, value="i0116").send_keys(user_info["microsoft_id"])
+        driver.find_element(by=By.ID, value="i0118").send_keys(user_info["microsoft_pw"])
+        driver.find_element(by=By.ID, value="idSIButton9").click()
+        sleep(0.5)
+        for i in range(10):
+            try:
+                driver.find_element(by=By.ID, value="idSIButton9").click()
+                break
+            except selenium.common.exceptions.ElementNotInteractableException:
+                sleep(1)
+        else:
+            raise selenium.common.exceptions.TimeoutException
+    except selenium.common.exceptions.NoSuchElementException:
+        pass
+
+    # Submit code
+    redeem_btn_div = driver.find_element(by=By.CLASS_NAME, value="redeem-code_actions__hWk8H")
+    redeem_btn = redeem_btn_div.find_element(by=By.TAG_NAME, value="button")
+    redeem_btn.click()
+
+    # Wait until code finishes redeeming
+    redeem_header = driver.find_element(by=By.TAG_NAME, value="h1")
+    sleep(1)
+    while redeem_header.text == "Redeem Your Code":
+        sleep(1)
+        try:
+            redeem_header = driver.find_element(by=By.TAG_NAME, value="h1")
+        except selenium.common.exceptions.NoSuchElementException:
+            pass
