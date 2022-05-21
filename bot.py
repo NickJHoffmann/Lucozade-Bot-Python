@@ -3,6 +3,7 @@ from selenium import webdriver
 from selenium.common import exceptions
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select
+from selenium.webdriver.common.action_chains import ActionChains
 from time import sleep
 import json
 import random
@@ -39,21 +40,21 @@ cookie_buttons = cookie_field.find_elements(by=By.CLASS_NAME, value="block-link"
 cookie_buttons[2].click()
 
 
-form_field = get_element_after_loading(By.CLASS_NAME, "infx-form-shell")
+form_div = get_element_after_loading(By.CLASS_NAME, "infx-form-shell")
 
 
-fill_field(form_field, "firstName", user_info['first_name'])
-fill_field(form_field, "email", user_info['email'])
-fill_field(form_field, "confirmEmail", user_info['email'])
+fill_field(form_div, "firstName", user_info['first_name'])
+fill_field(form_div, "email", user_info['email'])
+fill_field(form_div, "confirmEmail", user_info['email'])
 
-phone_section = form_field.find_element(by=By.CLASS_NAME, value="input-group-mobile")
+phone_section = form_div.find_element(by=By.CLASS_NAME, value="input-group-mobile")
 phone_code = Select(phone_section.find_element(by=By.CLASS_NAME, value="select"))
 phone_code.select_by_value("+44")
 fill_field(phone_section, "mobile", "7911123456")
 
-fill_field(form_field, "postcode", "SW1A 1AA")
+fill_field(form_div, "postcode", "SW1A 1AA")
 
-dropdowns = form_field.find_elements(by=By.CLASS_NAME, value="styled-select")
+dropdowns = form_div.find_elements(by=By.CLASS_NAME, value="styled-select")
 
 
 dropdowns[0].click()
@@ -64,11 +65,15 @@ country.select_by_value("NI")
 location = Select(dropdowns[1].find_element(by=By.TAG_NAME, value="select"))
 location.select_by_value("Tesco")
 
-form_field.find_element(by=By.NAME, value="age").click()
-form_field.find_element(by=By.NAME, value="terms").click()
+form_div.find_element(by=By.NAME, value="age").click()
+form_div.find_element(by=By.NAME, value="terms").click()
 
 # Try to get past captcha
 sleep((random.random() * 3) + 1.5)
-captcha = form_field.find_element(by=By.TAG_NAME, value="iframe")
+captcha = form_div.find_element(by=By.TAG_NAME, value="iframe")
 captcha.click()
 sleep(1)
+
+# Click "Next" button
+btns = driver.find_elements(by=By.CLASS_NAME, value="button-text")
+btns[1].click()
