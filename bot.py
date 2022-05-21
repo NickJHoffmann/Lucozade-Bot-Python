@@ -18,15 +18,15 @@ driver = webdriver.Chrome()
 driver.get('https://halo.lucozade.com/')
 action = ActionChains(driver)
 
-def get_elements_after_loading(type, value, get_all=False):
+def get_elements_after_loading(type, value, get_all=False, parent=driver):
     elem = None
     attempts = 0
     while not elem:
         try:
             if get_all:
-                elem = driver.find_elements(by=type, value=value)
+                elem = parent.find_elements(by=type, value=value)
             else:
-                elem = driver.find_element(by=type, value=value)
+                elem = parent.find_element(by=type, value=value)
         except selenium.common.exceptions.NoSuchElementException:
             if attempts > (ELEMENT_EXIST_CHECK_TIMEOUT / ELEMENT_EXIST_CHECK_DELAY):    # timeout / delay = number of attempts
                 print(f"Timed out trying to get element type={type}, value={value}")
@@ -124,3 +124,30 @@ select_option_after_loading(page_2_dropdowns[1], "19:00")
 # Click "Play" button
 btns = driver.find_elements(by=By.CLASS_NAME, value="button-text")
 btns[1].click()
+
+
+# Page 3
+
+# Click "Click to explore" widget
+page_3_check = get_elements_after_loading(By.CLASS_NAME, "lz-campaign-galaxy-container")
+sleep(3)
+page_3_check.click()
+sleep(1)
+page_3_check.click()
+
+btn = get_elements_after_loading(By.CLASS_NAME, value="button-text")
+btn.click()
+
+# Click "Access Redemption Portal" button
+portal_check = get_elements_after_loading(By.CLASS_NAME, "lz-campaign-xbox-feedback-container")
+btn = driver.find_element(by=By.CLASS_NAME, value="button-text")
+btn.click()
+
+
+# Codes page
+
+code_div = get_elements_after_loading(By.CLASS_NAME, "lz-campaign-xbox-prize-wrapper")
+codes = [f"{code.text}\n" for code in get_elements_after_loading(By.CLASS_NAME, "lz-campaign-xbox-prize-code", get_all=True)]
+
+with open("codes.txt", 'w') as codes_file:
+    codes_file.writelines(codes)
