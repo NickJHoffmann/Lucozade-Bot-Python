@@ -5,8 +5,8 @@ import argparse
 def main():
     parser = argparse.ArgumentParser(description="Redeem codes on Halo Waypoint")
     parser.add_argument("file", help="Codes file to input")
-    parser.add_argument("-s", "--start", help="Code number to start inputting", type=int, default=0)
-    parser.add_argument("-n", "--number", help="Number of codes to input from starting point", type=int)
+    parser.add_argument("-s", "--start", help="Code number to start inputting. Defaults to beginning of the file", type=int, default=0)
+    parser.add_argument("-n", "--number", help="Number of codes to input from starting point. Defaults to submit all codes after starting point", type=int)
 
     args = parser.parse_args()
 

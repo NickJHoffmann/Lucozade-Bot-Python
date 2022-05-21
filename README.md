@@ -14,4 +14,9 @@
   halted anywhere for more than 5 minutes, including waiting for things to load and waiting at the Captcha check.
 * All generated codes will also be stored in `codes.txt` which will be created in this directory.
 
+### redeem.py
+Directly redeem codes from a file, i.e. generated codes.txt
+* `python3 redeem.py [codes.txt]`
+* `python3 redeem.py -h` for help
+
 Different browser support coming...soon? Maybe?
