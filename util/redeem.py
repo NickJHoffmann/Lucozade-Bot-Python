@@ -11,7 +11,7 @@ def main():
     with open(sys.argv[1], 'r') as code_file:
         code = code_file.readline().strip()
         while code:
-            bot.redeem_waypoint_code(code)
+            bot.redeem_waypoint_code(code, True)
             code = code_file.readline().strip()
 
 

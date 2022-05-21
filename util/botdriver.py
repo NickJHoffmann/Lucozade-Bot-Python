@@ -15,12 +15,13 @@ class BotDriver:
     ELEMENT_EXIST_CHECK_TIMEOUT = 300  # Number of seconds to wait before timing out of element existence check
     LUCOZADE_URL = "https://halo.lucozade.com/"
     WAYPOINT_URL = "https://www.halowaypoint.com/redeem"
+    CONFIG_FILE = 'config.json'
 
     def __init__(self):
         self.driver = webdriver.Chrome()
         self.action = ActionChains(self.driver)
 
-        with open('config.json', 'r') as file:
+        with open(self.CONFIG_FILE, 'r') as file:
             self.user_info = json.load(file)
 
     def get_elements_after_loading(self, type, value, get_all=False, parent=None):
@@ -73,7 +74,7 @@ class BotDriver:
         elem = parent.find_element(by=By.NAME, value=field_name)
         self.action.move_to_element(elem).click().send_keys(value).perform()
 
-    def redeem_waypoint_code(self, code, redirect_url=None):
+    def redeem_waypoint_code(self, code, stay_on_waypoint=False):
         """Redeem a code on Waypoint"""
         input_field = self.get_elements_after_loading(By.CLASS_NAME, "text-input_input__11DMP")
         input_field.send_keys(code)
@@ -91,9 +92,7 @@ class BotDriver:
             except selenium.common.exceptions.NoSuchElementException:
                 pass
 
-        if redirect_url:
-            self.driver.get(redirect_url)
-        else:
+        if stay_on_waypoint:
             # Reload page if code has already been used, or click "new code" button on success
             if redeem_headers[-1].text == "WHOOPS!":
                 sleep(0.5)
